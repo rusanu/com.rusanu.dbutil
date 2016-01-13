@@ -17,16 +17,16 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("co.rusanu.DBUtil")]
+[assembly: AssemblyTitle("com.rusanu.DBUtil")]
 [assembly: AssemblyDescription("DBUtil.SqlCmd: execute SQL files in sqlcmd.exe compatible mode")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Rusanu Consulting LLC")]
 [assembly: AssemblyProduct("DBUtil")]
-[assembly: AssemblyCopyright("Copyright © Remus Rusanu 2010-2012")]
+[assembly: AssemblyCopyright("Copyright © Rusanu Consulting LLC 2010-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("16c49903-0e5f-45be-8b4b-47ceab35a069")]
 
-[assembly: AssemblyVersion("0.1.0.2")]
-[assembly: AssemblyFileVersion("0.1.0.2")]
+[assembly: AssemblyVersion("1.3.0.*")]
+[assembly: AssemblyFileVersion("1.3.0.0")]
