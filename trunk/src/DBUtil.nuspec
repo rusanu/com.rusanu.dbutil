@@ -11,8 +11,8 @@
     <iconUrl>http://www.gravatar.com/avatar/414213a8181616151fe73334532746ab.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initia release.</releaseNotes>
-    <copyright>Copyright Remus Rusanu 2012</copyright>
+    <releaseNotes>Add ExecuteReader, ExecuteStream.</releaseNotes>
+    <copyright>Copyright Rusanu Consulting LLC 2012-2016</copyright>
     <tags>SQL C#</tags>
   </metadata>
 </package>

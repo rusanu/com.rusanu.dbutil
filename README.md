@@ -22,3 +22,6 @@ var inst = new SqlCmd(SqlConnection)
 inst.ExecuteFile(@"The\Path\To\Your\Sp.sql");
 
 ```
+
+# NuGet
+Available on NuGet.org as [com.rusanu.DbUtilSqlCmd](https://www.nuget.org/packages/com.rusanu.DbUtilSqlCmd)

@@ -91,47 +91,56 @@ namespace com.rusanu.DBUtil {
 			sqlCmd.ExecuteFile (filePath);
 		}
 
+		public static void ExecuteStream(
+			SqlConnection conn,
+			Stream stream)
+		{
+			var sqlCmd = new SqlCmd(conn);
+			sqlCmd.ExecuteStream(stream);
+		}
+		
+		/// <summary>
+		/// Executes a SQL file, from the file path
+		/// </summary>
+		/// <param name="file">The SQL file to execute</param>
+		public bool ExecuteFile(string filePath)
+		{
+			if (string.IsNullOrEmpty(currentDirectory))
+			{
+				currentDirectory = Path.GetDirectoryName(filePath);
+				System.Environment.CurrentDirectory = currentDirectory;
+			}
 
-        public static void ExecuteStream(
-            SqlConnection conn,
-            Stream stream)
-        {
-            var sqlCmd = new SqlCmd(conn);
-            sqlCmd.ExecuteStream(stream);
-        }
-        
-        /// <summary>
-        /// Executes a SQL file
-        /// </summary>
-        /// <param name="file">The SQL file to execute</param>
-        public bool ExecuteFile(string filePath)
-        {
-            if (string.IsNullOrEmpty(currentDirectory))
-            {
-                currentDirectory = Path.GetDirectoryName(filePath);
-                System.Environment.CurrentDirectory = currentDirectory;
-            }
+			using (var stream = File.OpenRead(filePath))
+			{
+				return ExecuteStream(stream);
+			}
+		}
 
-            using (var stream = File.OpenRead(filePath))
-            {
-                return ExecuteStream(stream);
-            }
-        }
-
-        /// <summary>
-        /// Executes a SQL file
-        /// </summary>
-        /// <param name="file">The SQL file to execute</param>
-        public bool ExecuteStream(
-            Stream stream) {
+		/// <summary>
+		/// Executes a SQL file from a stream
+		/// </summary>
+		/// <param name="file">The SQL file to execute, as a Stream</param>
+		public bool ExecuteStream(
+			Stream stream) {
+			using (TextReader reader = new StreamReader(stream))
+			{
+				return ExecuteReader (reader);
+			}
+		}
+		
+		/// <summary>
+		/// Executes a SQL file, from a TextReader
+		/// </summary>
+		/// <param name="file">The SQL file to execute, as a TextReader</param>
+		public bool ExecuteReader(
+			TextReader file)
+		{
 			var regDelimiter = new Regex (@"^\b*" + BatchDelimiter + @"\b*(\d*)", RegexOptions.IgnoreCase);
 			var regReplacements = new Regex (@"\$\((\w+)\)");
 			var regCommands = new Regex (@"^:([\!\w]+)");
 			var currentBatch = new StringBuilder ();
 			var filesQueue = new Queue<TextReader> ();
-
-
-            TextReader file = new StreamReader(stream);
 
 			filesQueue.Enqueue (file);
 
