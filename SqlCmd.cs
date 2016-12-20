@@ -315,7 +315,21 @@ namespace com.rusanu.DBUtil {
 
 			Group valueGroup = m.Groups ["value"];
 			if (valueGroup.Success) {
-				Environment.Variables [variableGroup.Value] = valueGroup.Value;
+
+		                // Strip double quotations from beginning 
+		                string value = valueGroup.Value;
+		                if (value.StartsWith("\""))
+		                {
+		                    value = value.Substring(1);
+		                }
+		
+		                // Strip double quotations from end
+		                if (value.EndsWith("\""))
+		                {
+		                    value = value.Substring(0, value.Length - 1);
+		                }
+		
+				Environment.Variables [variableGroup.Value] = value;
 			} else {
 				Environment.Variables.Remove (variableGroup.Value);
 			}
