@@ -33,7 +33,6 @@ namespace com.rusanu.DBUtil {
 	public class SqlCmd : IDisposable {
 		private readonly Environment _environment;
 		private SqlConnection _privateConnection;
-		private string currentDirectory;
 
 		/// <summary>
 		/// Constructor
@@ -98,43 +97,48 @@ namespace com.rusanu.DBUtil {
 			var sqlCmd = new SqlCmd(conn);
 			sqlCmd.ExecuteStream(stream);
 		}
-		
+
 		/// <summary>
 		/// Executes a SQL file, from the file path
 		/// </summary>
-		/// <param name="file">The SQL file to execute</param>
-		public bool ExecuteFile(string filePath)
+		/// <param name="filePath">The SQL file to execute</param>
+		/// <param name="basePath">
+		/// The base path to use to qualify relative path of any included files that are to be executed.
+		/// If not supplied this will default to the directory path containing <paramref name="filePath"/>
+		/// </param>
+		public bool ExecuteFile(string filePath, string basePath = null)
 		{
-			if (string.IsNullOrEmpty(currentDirectory))
+			if (string.IsNullOrEmpty(basePath))
 			{
-				currentDirectory = Path.GetDirectoryName(filePath);
-				System.Environment.CurrentDirectory = currentDirectory;
+				basePath = Path.GetDirectoryName(filePath);
 			}
 
 			using (var stream = File.OpenRead(filePath))
 			{
-				return ExecuteStream(stream);
+				return ExecuteStream(stream, basePath);
 			}
 		}
 
 		/// <summary>
 		/// Executes a SQL file from a stream
 		/// </summary>
-		/// <param name="file">The SQL file to execute, as a Stream</param>
-		public bool ExecuteStream(
-			Stream stream) {
+		/// <param name="stream">The SQL file to execute, as a Stream</param>
+		/// <param name="basePath">The base path to use to qualify relative path of any included files that are to be executed</param>
+		public bool ExecuteStream(Stream stream, string basePath = null)
+		{
 			using (TextReader reader = new StreamReader(stream))
 			{
-				return ExecuteReader (reader);
+				return ExecuteReader (reader, basePath);
 			}
 		}
-		
+
 		/// <summary>
 		/// Executes a SQL file, from a TextReader
 		/// </summary>
 		/// <param name="file">The SQL file to execute, as a TextReader</param>
+		/// <param name="basePath">The base path to use to qualify relative path of any included files that are to be executed</param>
 		public bool ExecuteReader(
-			TextReader file)
+			TextReader file, string basePath = null)
 		{
 			var regDelimiter = new Regex (@"^\b*" + BatchDelimiter + @"\b*(\d*)", RegexOptions.IgnoreCase);
 			var regReplacements = new Regex (@"\$\((\w+)\)");
@@ -207,7 +211,7 @@ namespace com.rusanu.DBUtil {
 							Debug.WriteLine (String.Format ("SqlCmd: command not implemented '{0}' in line: {1}'", command, line));
 							break;
 						case "r":
-							RunCommand (line);
+							RunCommand (line, basePath);
 							break;
 						case "connect":
 							ConnectCommand (line);
@@ -235,7 +239,7 @@ namespace com.rusanu.DBUtil {
 			return true;
 		}
 
-		private void RunCommand (string line) {
+		private void RunCommand (string line, string basePath) {
 			Regex regFile = new Regex (@":r\s+(?<file>.+)", RegexOptions.IgnoreCase);
 			var match = regFile.Match (line);
 			if (!match.Success) {
@@ -246,12 +250,22 @@ namespace com.rusanu.DBUtil {
 				return;
 			}
 
-			var filePath = fileMatch.Value;
+			var filePath = GetFullFilePath(fileMatch.Value, basePath);
 			if (string.IsNullOrEmpty (filePath) || !File.Exists (filePath)) {
 				return;
 			}
 
 			ExecuteFile (filePath);
+		}
+
+		private string GetFullFilePath(string filePath, string basePath)
+		{
+			if (Path.IsPathRooted(filePath))
+			{
+				return filePath;
+			}
+
+			return Path.Combine(basePath, filePath);
 		}
 
 		private void ConnectCommand (string line) {
